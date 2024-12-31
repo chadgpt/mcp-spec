@@ -1,20 +1,20 @@
 ---
-title: Logging
+title: 日志记录
 ---
 
 {{< callout type="info" >}}
-**Protocol Revision**: {{< param protocolRevision >}}
+**协议修订**: {{< param protocolRevision >}}
 {{< /callout >}}
 
-The Model Context Protocol (MCP) provides a standardized way for servers to send structured log messages to clients. Clients can control logging verbosity by setting minimum log levels, with servers sending notifications containing severity levels, optional logger names, and arbitrary JSON-serializable data.
+Model Context Protocol (MCP) 提供了一种标准化方式，使服务器能够向客户端发送结构化日志消息。客户端可以通过设置最小日志级别来控制日志记录的详细程度，服务器发送包含严重级别、可选记录器名称和任意 JSON 可序列化数据的通知。
 
-## User Interaction Model
+## 用户交互模型
 
-Implementations are free to expose logging through any interface pattern that suits their needs&mdash;the protocol itself does not mandate any specific user interaction model.
+实现者可以通过任何适合其需求的界面模式公开日志记录&mdash;协议本身不强制规定任何特定的用户交互模型。
 
-## Capabilities
+## 功能
 
-Servers that emit log message notifications **MUST** declare the `logging` capability:
+发送日志消息通知的服务器 **必须** 声明 `logging` 功能：
 
 ```json
 {
@@ -24,28 +24,28 @@ Servers that emit log message notifications **MUST** declare the `logging` capab
 }
 ```
 
-## Log Levels
+## 日志级别
 
-The protocol follows the standard syslog severity levels specified in [RFC 5424](https://datatracker.ietf.org/doc/html/rfc5424#section-6.2.1):
+该协议遵循 [RFC 5424](https://datatracker.ietf.org/doc/html/rfc5424#section-6.2.1) 中指定的标准 syslog 严重级别：
 
-| Level      | Description                          | Example Use Case                        |
-|------------|--------------------------------------|----------------------------------------|
-| debug      | Detailed debugging information       | Function entry/exit points              |
-| info       | General informational messages       | Operation progress updates              |
-| notice     | Normal but significant events        | Configuration changes                   |
-| warning    | Warning conditions                   | Deprecated feature usage                |
-| error      | Error conditions                     | Operation failures                      |
-| critical   | Critical conditions                  | System component failures               |
-| alert      | Action must be taken immediately     | Data corruption detected                |
-| emergency  | System is unusable                   | Complete system failure                 |
+| 级别      | 描述                          | 示例用例                        |
+|-----------|-------------------------------|---------------------------------|
+| debug     | 详细的调试信息                | 函数入口/退出点                 |
+| info      | 一般信息性消息                | 操作进度更新                    |
+| notice    | 正常但重要的事件              | 配置更改                        |
+| warning   | 警告条件                      | 使用已弃用的功能                |
+| error     | 错误条件                      | 操作失败                        |
+| critical  | 严重条件                      | 系统组件故障                    |
+| alert     | 必须立即采取行动              | 检测到数据损坏                  |
+| emergency | 系统不可用                    | 完全系统故障                    |
 
-## Protocol Messages
+## 协议消息
 
-### Setting Log Level
+### 设置日志级别
 
-To configure the minimum log level, clients **MAY** send a `logging/setLevel` request:
+要配置最小日志级别，客户端 **可以** 发送 `logging/setLevel` 请求：
 
-**Request:**
+**请求:**
 ```json
 {
   "jsonrpc": "2.0",
@@ -57,9 +57,9 @@ To configure the minimum log level, clients **MAY** send a `logging/setLevel` re
 }
 ```
 
-### Log Message Notifications
+### 日志消息通知
 
-Servers send log messages using `notifications/message` notifications:
+服务器使用 `notifications/message` 通知发送日志消息：
 
 ```json
 {
@@ -69,7 +69,7 @@ Servers send log messages using `notifications/message` notifications:
     "level": "error",
     "logger": "database",
     "data": {
-      "error": "Connection failed",
+      "error": "连接失败",
       "details": {
         "host": "localhost",
         "port": 5432
@@ -79,58 +79,58 @@ Servers send log messages using `notifications/message` notifications:
 }
 ```
 
-## Message Flow
+## 消息流程
 
 ```mermaid
 sequenceDiagram
     participant Client
     participant Server
 
-    Note over Client,Server: Configure Logging
+    Note over Client,Server: 配置日志记录
     Client->>Server: logging/setLevel (info)
-    Server-->>Client: Empty Result
+    Server-->>Client: 空结果
 
-    Note over Client,Server: Server Activity
+    Note over Client,Server: 服务器活动
     Server--)Client: notifications/message (info)
     Server--)Client: notifications/message (warning)
     Server--)Client: notifications/message (error)
 
-    Note over Client,Server: Level Change
+    Note over Client,Server: 级别更改
     Client->>Server: logging/setLevel (error)
-    Server-->>Client: Empty Result
-    Note over Server: Only sends error level<br/>and above
+    Server-->>Client: 空结果
+    Note over Server: 仅发送错误级别<br/>及以上
 ```
 
-## Error Handling
+## 错误处理
 
-Servers **SHOULD** return standard JSON-RPC errors for common failure cases:
+服务器 **应** 返回标准 JSON-RPC 错误以处理常见故障情况：
 
-- Invalid log level: `-32602` (Invalid params)
-- Configuration errors: `-32603` (Internal error)
+- 无效的日志级别: `-32602` (无效参数)
+- 配置错误: `-32603` (内部错误)
 
-## Implementation Considerations
+## 实施考虑
 
-1. Servers **SHOULD**:
-   - Rate limit log messages
-   - Include relevant context in data field
-   - Use consistent logger names
-   - Remove sensitive information
+1. 服务器 **应**：
+   - 限制日志消息的速率
+   - 在数据字段中包含相关上下文
+   - 使用一致的记录器名称
+   - 删除敏感信息
 
-2. Clients **MAY**:
-   - Present log messages in the UI
-   - Implement log filtering/search
-   - Display severity visually
-   - Persist log messages
+2. 客户端 **可以**：
+   - 在 UI 中显示日志消息
+   - 实现日志过滤/搜索
+   - 以视觉方式显示严重性
+   - 持久化日志消息
 
-## Security
+## 安全
 
-1. Log messages **MUST NOT** contain:
-   - Credentials or secrets
-   - Personal identifying information
-   - Internal system details that could aid attacks
+1. 日志消息 **不得** 包含：
+   - 凭据或密钥
+   - 个人身份信息
+   - 可能帮助攻击的内部系统详细信息
 
-2. Implementations **SHOULD**:
-   - Rate limit messages
-   - Validate all data fields
-   - Control log access
-   - Monitor for sensitive content
+2. 实现 **应**：
+   - 限制消息速率
+   - 验证所有数据字段
+   - 控制日志访问
+   - 监控敏感内容

@@ -1,28 +1,28 @@
 ---
-title: Completion
+title: 完成
 ---
 
 {{< callout type="info" >}}
-**Protocol Revision**: {{< param protocolRevision >}}
+**协议修订**: {{< param protocolRevision >}}
 {{< /callout >}}
 
-The Model Context Protocol (MCP) provides a standardized way for servers to offer argument autocompletion suggestions for prompts and resource URIs. This enables rich, IDE-like experiences where users receive contextual suggestions while entering argument values.
+Model Context Protocol (MCP) 提供了一种标准化方式，使服务器能够为提示和资源 URI 提供参数自动完成建议。这使用户在输入参数值时能够获得上下文建议，从而实现类似于 IDE 的丰富体验。
 
-## User Interaction Model
+## 用户交互模型
 
-Completion in MCP is designed to support interactive user experiences similar to IDE code completion.
+MCP 中的完成设计支持类似于 IDE 代码完成的交互用户体验。
 
-For example, applications may show completion suggestions in a dropdown or popup menu as users type, with the ability to filter and select from available options.
+例如，应用程序可以在用户输入时在下拉菜单或弹出菜单中显示完成建议，并能够从可用选项中进行过滤和选择。
 
-However, implementations are free to expose completion through any interface pattern that suits their needs&mdash;the protocol itself does not mandate any specific user interaction model.
+然而，实现者可以通过任何适合其需求的界面模式公开完成&mdash;协议本身不强制规定任何特定的用户交互模型。
 
-## Protocol Messages
+## 协议消息
 
-### Requesting Completions
+### 请求完成
 
-To get completion suggestions, clients send a `completion/complete` request specifying what is being completed through a reference type:
+要获取完成建议，客户端发送 `completion/complete` 请求，指定通过引用类型完成的内容：
 
-**Request:**
+**请求:**
 ```json
 {
   "jsonrpc": "2.0",
@@ -41,7 +41,7 @@ To get completion suggestions, clients send a `completion/complete` request spec
 }
 ```
 
-**Response:**
+**响应:**
 ```json
 {
   "jsonrpc": "2.0",
@@ -56,70 +56,70 @@ To get completion suggestions, clients send a `completion/complete` request spec
 }
 ```
 
-### Reference Types
+### 引用类型
 
-The protocol supports two types of completion references:
+该协议支持两种类型的完成引用：
 
-| Type | Description | Example |
-|------|-------------|---------|
-| `ref/prompt` | References a prompt by name | `{"type": "ref/prompt", "name": "code_review"}` |
-| `ref/resource` | References a resource URI | `{"type": "ref/resource", "uri": "file:///{path}"}` |
+| 类型 | 描述 | 示例 |
+|------|------|------|
+| `ref/prompt` | 按名称引用提示 | `{"type": "ref/prompt", "name": "code_review"}` |
+| `ref/resource` | 引用资源 URI | `{"type": "ref/resource", "uri": "file:///{path}"}` |
 
-### Completion Results
+### 完成结果
 
-Servers return an array of completion values ranked by relevance, with:
+服务器返回按相关性排序的完成值数组，其中包括：
 
-- Maximum 100 items per response
-- Optional total number of available matches
-- Boolean indicating if additional results exist
+- 每个响应最多 100 个项目
+- 可选的可用匹配总数
+- 指示是否存在其他结果的布尔值
 
-## Message Flow
+## 消息流程
 
 ```mermaid
 sequenceDiagram
     participant Client
     participant Server
 
-    Note over Client: User types argument
+    Note over Client: 用户输入参数
     Client->>Server: completion/complete
-    Server-->>Client: Completion suggestions
+    Server-->>Client: 完成建议
 
-    Note over Client: User continues typing
+    Note over Client: 用户继续输入
     Client->>Server: completion/complete
-    Server-->>Client: Refined suggestions
+    Server-->>Client: 细化建议
 ```
 
-## Data Types
+## 数据类型
 
 ### CompleteRequest
-- `ref`: A `PromptReference` or `ResourceReference`
-- `argument`: Object containing:
-  - `name`: Argument name
-  - `value`: Current value
+- `ref`: 一个 `PromptReference` 或 `ResourceReference`
+- `argument`: 包含以下内容的对象：
+  - `name`: 参数名称
+  - `value`: 当前值
 
 ### CompleteResult
-- `completion`: Object containing:
-  - `values`: Array of suggestions (max 100)
-  - `total`: Optional total matches
-  - `hasMore`: Additional results flag
+- `completion`: 包含以下内容的对象：
+  - `values`: 建议数组（最多 100 个）
+  - `total`: 可选的匹配总数
+  - `hasMore`: 其他结果标志
 
-## Implementation Considerations
+## 实施考虑
 
-1. Servers **SHOULD**:
-   - Return suggestions sorted by relevance
-   - Implement fuzzy matching where appropriate
-   - Rate limit completion requests
-   - Validate all inputs
+1. 服务器 **应**：
+   - 返回按相关性排序的建议
+   - 在适当的情况下实现模糊匹配
+   - 限制完成请求的速率
+   - 验证所有输入
 
-2. Clients **SHOULD**:
-   - Debounce rapid completion requests
-   - Cache completion results where appropriate
-   - Handle missing or partial results gracefully
+2. 客户端 **应**：
+   - 对快速完成请求进行去抖动
+   - 在适当的情况下缓存完成结果
+   - 优雅地处理缺失或部分结果
 
-## Security
+## 安全
 
-Implementations **MUST**:
-- Validate all completion inputs
-- Implement appropriate rate limiting
-- Control access to sensitive suggestions
-- Prevent completion-based information disclosure
+实现 **必须**：
+- 验证所有完成输入
+- 实施适当的速率限制
+- 控制对敏感建议的访问
+- 防止基于完成的信息泄露
