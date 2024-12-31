@@ -1,33 +1,33 @@
 ---
-title: Sampling
+title: 采样
 type: docs
 weight: 40
 ---
 
 {{< callout type="info" >}}
-**Protocol Revision**: {{< param protocolRevision >}}
+**协议修订**: {{< param protocolRevision >}}
 {{< /callout >}}
 
-The Model Context Protocol (MCP) provides a standardized way for servers to request LLM sampling ("completions" or "generations") from language models via clients. This flow allows clients to maintain control over model access, selection, and permissions while enabling servers to leverage AI capabilities&mdash;with no server API keys necessary. Servers can request text or image-based interactions and optionally include context from MCP servers in their prompts.
+Model Context Protocol (MCP) 提供了一种标准化方式，使服务器能够通过客户端请求 LLM 采样（“完成”或“生成”）。此流程允许客户端保持对模型访问、选择和权限的控制，同时使服务器能够利用 AI 功能&mdash;无需服务器 API 密钥。服务器可以请求基于文本或图像的交互，并可选择在其提示中包含来自 MCP 服务器的上下文。
 
-## User Interaction Model
+## 用户交互模型
 
-Sampling in MCP allows servers to implement agentic behaviors, by enabling LLM calls to occur _nested_ inside other MCP server features.
+MCP 中的采样允许服务器实现代理行为，通过使 LLM 调用 _嵌套_ 在其他 MCP 服务器功能中来实现。
 
-Implementations are free to expose sampling through any interface pattern that suits their needs&mdash;the protocol itself does not mandate any specific user interaction model.
+实现可以通过任何适合其需求的界面模式公开采样&mdash;协议本身不强制规定任何特定的用户交互模型。
 
 {{< callout type="warning" >}}
-  For trust & safety and security, there **SHOULD** always be a human in the loop with the ability to deny sampling requests.
+  出于信任与安全和安全考虑，**应** 始终有一个人在循环中，能够拒绝采样请求。
   
-  Applications **SHOULD**:
-  * Provide UI that makes it easy and intuitive to review sampling requests
-  * Allow users to view and edit prompts before sending
-  * Present generated responses for review before delivery
+  应用程序 **应**：
+  * 提供易于直观地审查采样请求的 UI
+  * 允许用户在发送前查看和编辑提示
+  * 在交付前呈现生成的响应以供审查
 {{< /callout >}}
 
-## Capabilities
+## 功能
 
-Clients that support sampling **MUST** declare the `sampling` capability during [initialization]({{< ref "/specification/basic/lifecycle#initialization" >}}):
+支持采样的客户端 **必须** 在 [初始化]({{< ref "/specification/basic/lifecycle#initialization" >}}) 期间声明 `sampling` 功能：
 
 ```json
 {
@@ -37,13 +37,13 @@ Clients that support sampling **MUST** declare the `sampling` capability during 
 }
 ```
 
-## Protocol Messages
+## 协议消息
 
-### Creating Messages
+### 创建消息
 
-To request a language model generation, servers send a `sampling/createMessage` request:
+要请求语言模型生成，服务器发送 `sampling/createMessage` 请求：
 
-**Request:**
+**请求:**
 ```json
 {
   "jsonrpc": "2.0",
@@ -55,7 +55,7 @@ To request a language model generation, servers send a `sampling/createMessage` 
         "role": "user",
         "content": {
           "type": "text",
-          "text": "What is the capital of France?"
+          "text": "法国的首都是哪里？"
         }
       }
     ],
@@ -68,13 +68,13 @@ To request a language model generation, servers send a `sampling/createMessage` 
       "intelligencePriority": 0.8,
       "speedPriority": 0.5
     },
-    "systemPrompt": "You are a helpful assistant.",
+    "systemPrompt": "你是一个乐于助人的助手。",
     "maxTokens": 100
   }
 }
 ```
 
-**Response:**
+**响应:**
 ```json
 {
   "jsonrpc": "2.0",
@@ -82,8 +82,8 @@ To request a language model generation, servers send a `sampling/createMessage` 
   "result": {
     "role": "assistant",
     "content": {
-      "type": "text",
-      "text": "The capital of France is Paris."
+          "type": "text",
+          "text": "法国的首都是巴黎。"
     },
     "model": "claude-3-sonnet-20240307",
     "stopReason": "endTurn"
@@ -91,7 +91,7 @@ To request a language model generation, servers send a `sampling/createMessage` 
 }
 ```
 
-## Message Flow
+## 消息流程
 
 ```mermaid
 sequenceDiagram
@@ -100,106 +100,106 @@ sequenceDiagram
     participant User
     participant LLM
 
-    Note over Server,Client: Server initiates sampling
+    Note over Server,Client: 服务器启动采样
     Server->>Client: sampling/createMessage
 
-    Note over Client,User: Human-in-the-loop review
-    Client->>User: Present request for approval
-    User-->>Client: Review and approve/modify
+    Note over Client,User: 人在循环中审查
+    Client->>User: 提出请求以供批准
+    User-->>Client: 审查并批准/修改
 
-    Note over Client,LLM: Model interaction
-    Client->>LLM: Forward approved request
-    LLM-->>Client: Return generation
+    Note over Client,LLM: 模型交互
+    Client->>LLM: 转发批准的请求
+    LLM-->>Client: 返回生成
 
-    Note over Client,User: Response review
-    Client->>User: Present response for approval
-    User-->>Client: Review and approve/modify
+    Note over Client,User: 响应审查
+    Client->>User: 提出响应以供批准
+    User-->>Client: 审查并批准/修改
 
-    Note over Server,Client: Complete request
-    Client-->>Server: Return approved response
+    Note over Server,Client: 完成请求
+    Client-->>Server: 返回批准的响应
 ```
 
-## Data Types
+## 数据类型
 
-### Messages
+### 消息
 
-Sampling messages can contain:
+采样消息可以包含：
 
-#### Text Content
+#### 文本内容
 ```json
 {
   "type": "text",
-  "text": "The message content"
+  "text": "消息内容"
 }
 ```
 
-#### Image Content
+#### 图像内容
 ```json
 {
   "type": "image",
-  "data": "base64-encoded-image-data",
+  "data": "base64 编码的图像数据",
   "mimeType": "image/jpeg"
 }
 ```
 
-### Model Preferences
+### 模型偏好
 
-Model selection in MCP requires careful abstraction since servers and clients may use different AI providers with distinct model offerings. A server cannot simply request a specific model by name since the client may not have access to that exact model or may prefer to use a different provider's equivalent model.
+MCP 中的模型选择需要仔细抽象，因为服务器和客户端可能使用不同的 AI 提供商，提供不同的模型。服务器不能简单地按名称请求特定模型，因为客户端可能无法访问该模型，或者可能更喜欢使用不同提供商的等效模型。
 
-To solve this, MCP implements a preference system that combines abstract capability priorities with optional model hints:
+为了解决这个问题，MCP 实现了一个偏好系统，将抽象能力优先级与可选的模型提示相结合：
 
-#### Capability Priorities
+#### 能力优先级
 
-Servers express their needs through three normalized priority values (0-1):
+服务器通过三个归一化的优先级值（0-1）表达其需求：
 
-- `costPriority`: How important is minimizing costs? Higher values prefer cheaper models.
-- `speedPriority`: How important is low latency? Higher values prefer faster models.
-- `intelligencePriority`: How important are advanced capabilities? Higher values prefer more capable models.
+- `costPriority`: 最小化成本的重要性？较高的值偏向于更便宜的模型。
+- `speedPriority`: 低延迟的重要性？较高的值偏向于更快的模型。
+- `intelligencePriority`: 高级功能的重要性？较高的值偏向于更强大的模型。
 
-#### Model Hints
+#### 模型提示
 
-While priorities help select models based on characteristics, `hints` allow servers to suggest specific models or model families:
+虽然优先级有助于根据特性选择模型，但 `hints` 允许服务器建议特定模型或模型系列：
 
-- Hints are treated as substrings that can match model names flexibly
-- Multiple hints are evaluated in order of preference
-- Clients **MAY** map hints to equivalent models from different providers
-- Hints are advisory&mdash;clients make final model selection
+- 提示被视为子字符串，可以灵活地匹配模型名称
+- 多个提示按优先顺序评估
+- 客户端 **可以** 将提示映射到不同提供商的等效模型
+- 提示是建议性的&mdash;客户端做出最终的模型选择
 
-For example:
+例如:
 ```json
 {
   "hints": [
-    {"name": "claude-3-sonnet"},  // Prefer Sonnet-class models
-    {"name": "claude"}            // Fall back to any Claude model
+    {"name": "claude-3-sonnet"},  // 更喜欢 Sonnet 类模型
+    {"name": "claude"}            // 回退到任何 Claude 模型
   ],
-  "costPriority": 0.3,            // Cost is less important
-  "speedPriority": 0.8,           // Speed is very important
-  "intelligencePriority": 0.5     // Moderate capability needs
+  "costPriority": 0.3,            // 成本不太重要
+  "speedPriority": 0.8,           // 速度非常重要
+  "intelligencePriority": 0.5     // 中等能力需求
 }
 ```
 
-The client processes these preferences to select an appropriate model from its available options. For instance, if the client doesn't have access to Claude models but has Gemini, it might map the sonnet hint to `gemini-1.5-pro` based on similar capabilities.
+客户端处理这些偏好，从其可用选项中选择适当的模型。例如，如果客户端无法访问 Claude 模型，但有 Gemini，它可能会根据类似的能力将 sonnet 提示映射到 `gemini-1.5-pro`。
 
-## Error Handling
+## 错误处理
 
-Clients **SHOULD** return errors for common failure cases:
+客户端 **应** 返回常见故障情况的错误：
 
-Example error:
+错误示例:
 ```json
 {
   "jsonrpc": "2.0",
   "id": 1,
   "error": {
     "code": -1,
-    "message": "User rejected sampling request"
+    "message": "用户拒绝了采样请求"
   }
 }
 ```
 
-## Security Considerations
+## 安全考虑
 
-1. Clients **SHOULD** implement user approval controls
-2. Both parties **SHOULD** validate message content
-3. Clients **SHOULD** respect model preference hints
-4. Clients **SHOULD** implement rate limiting
-5. Both parties **MUST** handle sensitive data appropriately
+1. 客户端 **应** 实施用户批准控制
+2. 双方 **应** 验证消息内容
+3. 客户端 **应** 尊重模型偏好提示
+4. 客户端 **应** 实施速率限制
+5. 双方 **必须** 适当处理敏感数据

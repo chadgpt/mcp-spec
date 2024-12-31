@@ -1,33 +1,33 @@
 ---
-title: Tools
+title: 工具
 type: docs
 weight: 40
 ---
 
 {{< callout type="info" >}}
-**Protocol Revision**: {{< param protocolRevision >}}
+**协议修订**: {{< param protocolRevision >}}
 {{< /callout >}}
 
-The Model Context Protocol (MCP) allows servers to expose tools that can be invoked by language models. Tools enable models to interact with external systems, such as querying databases, calling APIs, or performing computations. Each tool is uniquely identified by a name and includes metadata describing its schema.
+Model Context Protocol (MCP) 允许服务器公开可以由语言模型调用的工具。工具使模型能够与外部系统交互，例如查询数据库、调用 API 或执行计算。每个工具都由一个名称唯一标识，并包含描述其模式的元数据。
 
-## User Interaction Model
+## 用户交互模型
 
-Tools in MCP are designed to be **model-controlled**, meaning that the language model can discover and invoke tools automatically based on its contextual understanding and the user's prompts.
+MCP 中的工具设计为 **模型控制**，这意味着语言模型可以根据其上下文理解和用户的提示自动发现和调用工具。
 
-However, implementations are free to expose tools through any interface pattern that suits their needs&mdash;the protocol itself does not mandate any specific user interaction model.
+然而，实现者可以通过任何适合其需求的界面模式公开工具&mdash;协议本身不强制规定任何特定的用户交互模型。
 
 {{< callout type="warning" >}}
-  For trust & safety and security, there **SHOULD** always be a human in the loop with the ability to deny tool invocations.
+  出于信任与安全和安全考虑，**应** 始终有一个人在循环中，能够拒绝工具调用。
   
-  Applications **SHOULD**:
-  * Provide UI that makes clear which tools are being exposed to the AI model
-  * Insert clear visual indicators when tools are invoked
-  * Present confirmation prompts to the user for operations, to ensure a human is in the loop
+  应用程序 **应**：
+  * 提供 UI，清楚地显示哪些工具暴露给 AI 模型
+  * 在工具调用时插入清晰的视觉指示器
+  * 向用户呈现确认提示，以确保人在循环中
 {{< /callout >}}
 
-## Capabilities
+## 功能
 
-Servers that support tools **MUST** declare the `tools` capability:
+支持工具的服务器 **必须** 声明 `tools` 功能：
 
 ```json
 {
@@ -39,15 +39,15 @@ Servers that support tools **MUST** declare the `tools` capability:
 }
 ```
 
-`listChanged` indicates whether the server will emit notifications when the list of available tools changes.
+`listChanged` 表示服务器是否会在可用工具列表更改时发出通知。
 
-## Protocol Messages
+## 协议消息
 
-### Listing Tools
+### 列出工具
 
-To discover available tools, clients send a `tools/list` request. This operation supports [pagination]({{< ref "/specification/server/utilities/pagination" >}}).
+要发现可用工具，客户端发送 `tools/list` 请求。此操作支持 [分页]({{< ref "/specification/server/utilities/pagination" >}})。
 
-**Request:**
+**请求:**
 ```json
 {
   "jsonrpc": "2.0",
@@ -59,7 +59,7 @@ To discover available tools, clients send a `tools/list` request. This operation
 }
 ```
 
-**Response:**
+**响应:**
 ```json
 {
   "jsonrpc": "2.0",
@@ -68,13 +68,13 @@ To discover available tools, clients send a `tools/list` request. This operation
     "tools": [
       {
         "name": "get_weather",
-        "description": "Get current weather information for a location",
+        "description": "获取某地的当前天气信息",
         "inputSchema": {
           "type": "object",
           "properties": {
             "location": {
               "type": "string",
-              "description": "City name or zip code"
+              "description": "城市名称或邮政编码"
             }
           },
           "required": ["location"]
@@ -86,11 +86,11 @@ To discover available tools, clients send a `tools/list` request. This operation
 }
 ```
 
-### Calling Tools
+### 调用工具
 
-To invoke a tool, clients send a `tools/call` request:
+要调用工具，客户端发送 `tools/call` 请求：
 
-**Request:**
+**请求:**
 ```json
 {
   "jsonrpc": "2.0",
@@ -105,7 +105,7 @@ To invoke a tool, clients send a `tools/call` request:
 }
 ```
 
-**Response:**
+**响应:**
 ```json
 {
   "jsonrpc": "2.0",
@@ -113,16 +113,16 @@ To invoke a tool, clients send a `tools/call` request:
   "result": {
     "content": [{
       "type": "text",
-      "text": "Current weather in New York:\nTemperature: 72°F\nConditions: Partly cloudy"
+      "text": "纽约当前天气：\n温度：72°F\n天气状况：局部多云"
     }],
     "isError": false
   }
 }
 ```
 
-### List Changed Notification
+### 列表更改通知
 
-When the list of available tools changes, servers that declared the `listChanged` capability **SHOULD** send a notification:
+当可用工具列表更改时，声明了 `listChanged` 功能的服务器 **应** 发送通知：
 
 ```json
 {
@@ -131,7 +131,7 @@ When the list of available tools changes, servers that declared the `listChanged
 }
 ```
 
-## Message Flow
+## 消息流程
 
 ```mermaid
 sequenceDiagram
@@ -139,58 +139,58 @@ sequenceDiagram
     participant Client
     participant Server
 
-    Note over Client,Server: Discovery
+    Note over Client,Server: 发现
     Client->>Server: tools/list
-    Server-->>Client: List of tools
+    Server-->>Client: 工具列表
 
-    Note over Client,LLM: Tool Selection
-    LLM->>Client: Select tool to use
+    Note over Client,LLM: 工具选择
+    LLM->>Client: 选择要使用的工具
 
-    Note over Client,Server: Invocation
+    Note over Client,Server: 调用
     Client->>Server: tools/call
-    Server-->>Client: Tool result
-    Client->>LLM: Process result
+    Server-->>Client: 工具结果
+    Client->>LLM: 处理结果
 
-    Note over Client,Server: Updates
+    Note over Client,Server: 更新
     Server--)Client: tools/list_changed
     Client->>Server: tools/list
-    Server-->>Client: Updated tools
+    Server-->>Client: 更新的工具
 ```
 
-## Data Types
+## 数据类型
 
-### Tool
+### 工具
 
-A tool definition includes:
+工具定义包括：
 
-- `name`: Unique identifier for the tool
-- `description`: Human-readable description of functionality
-- `inputSchema`: JSON Schema defining expected parameters
+- `name`: 工具的唯一标识符
+- `description`: 功能的人类可读描述
+- `inputSchema`: 定义预期参数的 JSON 模式
 
-### Tool Result
+### 工具结果
 
-Tool results can contain multiple content items of different types:
+工具结果可以包含多种类型的多个内容项：
 
-#### Text Content
+#### 文本内容
 ```json
 {
   "type": "text",
-  "text": "Tool result text"
+  "text": "工具结果文本"
 }
 ```
 
-#### Image Content
+#### 图像内容
 ```json
 {
   "type": "image",
-  "data": "base64-encoded-data",
+  "data": "base64 编码的数据",
   "mimeType": "image/png"
 }
 ```
 
-#### Embedded Resources
+#### 嵌入资源
 
-[Resources]({{< ref "/specification/server/resources" >}}) **MAY** be embedded, to provide additional context or data, behind a URI that can be subscribed to or fetched again by the client later:
+[资源]({{< ref "/specification/server/resources" >}}) **可以** 嵌入，以提供额外的上下文或数据，位于可以订阅或稍后由客户端再次获取的 URI 后面：
 
 ```json
 {
@@ -198,38 +198,38 @@ Tool results can contain multiple content items of different types:
   "resource": {
     "uri": "resource://example",
     "mimeType": "text/plain",
-    "text": "Resource content"
+    "text": "资源内容"
   }
 }
 ```
 
-## Error Handling
+## 错误处理
 
-Tools use two error reporting mechanisms:
+工具使用两种错误报告机制：
 
-1. **Protocol Errors**: Standard JSON-RPC errors for issues like:
-   - Unknown tools
-   - Invalid arguments
-   - Server errors
+1. **协议错误**: 标准 JSON-RPC 错误，用于以下问题：
+   - 未知工具
+   - 无效参数
+   - 服务器错误
 
-2. **Tool Execution Errors**: Reported in tool results with `isError: true`:
-   - API failures
-   - Invalid input data
-   - Business logic errors
+2. **工具执行错误**: 在工具结果中报告，带有 `isError: true`：
+   - API 失败
+   - 无效输入数据
+   - 业务逻辑错误
 
-Example protocol error:
+协议错误示例:
 ```json
 {
   "jsonrpc": "2.0",
   "id": 3,
   "error": {
     "code": -32602,
-    "message": "Unknown tool: invalid_tool_name"
+    "message": "未知工具：invalid_tool_name"
   }
 }
 ```
 
-Example tool execution error:
+工具执行错误示例:
 ```json
 {
   "jsonrpc": "2.0",
@@ -237,24 +237,24 @@ Example tool execution error:
   "result": {
     "content": [{
       "type": "text",
-      "text": "Failed to fetch weather data: API rate limit exceeded"
+      "text": "获取天气数据失败：API 速率限制超出"
     }],
     "isError": true
   }
 }
 ```
 
-## Security Considerations
+## 安全考虑
 
-1. Servers **MUST**:
-   - Validate all tool inputs
-   - Implement proper access controls
-   - Rate limit tool invocations
-   - Sanitize tool outputs
+1. 服务器 **必须**：
+   - 验证所有工具输入
+   - 实施适当的访问控制
+   - 限制工具调用速率
+   - 清理工具输出
 
-2. Clients **SHOULD**:
-   - Prompt for user confirmation on sensitive operations
-   - Show tool inputs to the user before calling the server, to avoid malicious or accidental data exfiltration
-   - Validate tool results before passing to LLM
-   - Implement timeouts for tool calls
-   - Log tool usage for audit purposes
+2. 客户端 **应**：
+   - 对敏感操作提示用户确认
+   - 在调用服务器之前向用户显示工具输入，以避免恶意或意外的数据泄露
+   - 在传递给 LLM 之前验证工具结果
+   - 为工具调用实现超时
+   - 记录工具使用情况以供审计
