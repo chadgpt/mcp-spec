@@ -1,4 +1,4 @@
-baseURL: "https://spec.modelcontextprotocol.io"
+baseURL: "https://model-context-protocol.github.io"
 title: Model Context Protocol Specification
 
 enableEmoji: true
@@ -86,7 +86,7 @@ menu:
       weight: 2
     - identifier: userDocs
       name: "User Guide ↗"
-      url: "https://modelcontextprotocol.io"
+      url: "https://model-context-protocol.mintlify.app"
       weight: 3
     - identifier: pythonSdk
       name: "Python SDK ↗"

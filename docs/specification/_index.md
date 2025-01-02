@@ -10,11 +10,11 @@ weight: 10
 **协议修订**: {{< param protocolRevision >}}
 {{< /callout >}}
 
-[Model Context Protocol](https://modelcontextprotocol.io) (MCP) 是一个开放协议，能够在 LLM 应用程序和外部数据源及工具之间实现无缝集成。无论您是在构建 AI 驱动的 IDE、增强聊天界面，还是创建自定义 AI 工作流，MCP 都提供了一种标准化的方式来连接 LLM 与所需的上下文。
+[Model Context Protocol](https://model-context-protocol.mintlify.app) (MCP) 是一个开放协议，能够在 LLM 应用程序和外部数据源及工具之间实现无缝集成。无论您是在构建 AI 驱动的 IDE、增强聊天界面，还是创建自定义 AI 工作流，MCP 都提供了一种标准化的方式来连接 LLM 与所需的上下文。
 
 本规范定义了权威的协议要求，基于 [schema.ts](https://github.com/modelcontextprotocol/specification/blob/main/schema/schema.ts) 中的 TypeScript 模式。
 
-有关实施指南和示例，请访问 [modelcontextprotocol.io](https://modelcontextprotocol.io)。
+有关实施指南和示例，请访问 [model-context-protocol.mintlify.app](https://model-context-protocol.mintlify.app)。
 
 本文件中的关键字 "MUST"、"MUST NOT"、"REQUIRED"、"SHALL"、"SHALL NOT"、"SHOULD"、"SHOULD NOT"、"RECOMMENDED"、"NOT RECOMMENDED"、"MAY" 和 "OPTIONAL" 应按照 [BCP 14](https://datatracker.ietf.org/doc/html/bcp14) [[RFC2119](https://datatracker.ietf.org/doc/html/rfc2119)] [[RFC8174](https://datatracker.ietf.org/doc/html/rfc8174)] 中的描述进行解释，仅当它们以全大写形式出现时，如此处所示。
 
